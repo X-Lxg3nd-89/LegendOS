@@ -395,6 +395,39 @@
             let time = new Date();
             document.getElementById('clock').textContent = time.toLocaleTimeString();
         }
+
+        function handleTerminal(e) {
+            if (e.key !== 'Enter') return;
+            const input = document.getElementById('term-input');
+            const output = document.getElementById('term-output');
+            const cmd = input.value.trim();
+            input.value = '';
+
+            output.textContent += `\n> ${cmd}`;
+            const [base, ...args] = cmd.split(' ');
+
+            switch (base.toLowerCase()) {
+                case 'help':
+                output.textContent += '\nAvailable: help, clear, echo [text], date, exit';
+                break;
+                case 'clear':
+                output.textContent = '';
+                return;
+                case 'echo':
+                output.textContent += `\n${args.join(' ')}`;
+                break;
+                case 'date':
+                output.textContent += `\n${new Date().toLocaleString()}`;
+                break;
+                case 'exit':
+                closeWindow('terminal-win');
+                break;
+                default:
+                output.textContent += `\nCommand not found: ${base}`;
+            }
+            output.scrollTop = output.scrollHeight;
+        }
+
         setInterval(updateClock, 1000);
         updateClock();
 
