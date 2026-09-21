@@ -169,6 +169,19 @@
             color: white;
             font-size: 12px;
         }
+
+        /* Tic-Tac-Toe Styling */
+        .ttt-cell {
+            height: 50px;
+            font-size: 20px;
+            font-weight: bold;
+            background: #fff;
+            border: 1px solid #999;
+            cursor: pointer;
+        }
+        .ttt-cell:hover {
+            background: #ddd;
+        }
     </style>
 </head>
 <body>
@@ -188,23 +201,29 @@
             <img src="https://api.iconify.design/lucide:calculator.svg?color=white" alt="Calc">
             <span>Calculator</span>
         </div>
+
         <div class="desktop-imgs" onclick="openWindow('terminal-win')">
             <img src="https://api.iconify.design/lucide:terminal.svg?color=white" alt="Terminal">
             <span>Terminal</span>
         </div> 
+
+        <div class="desktop-imgs" onclick="openWindow('ttt-win')">
+            <img src="https://api.iconify.design/lucide:gamepad-2.svg?color=white" alt="TicTacToe">
+            <span>TicTacToe</span>
+        </div>
     </div>
 
 
     <div id="terminal-win" class="win" style="top: 70px; left: 260px; width: 420px;">
-    <div class="win-title">
-        <span>Terminal</span>
-        <button class="close-btn" onclick="closeWindow('terminal-win')">X</button>
-    </div>
+        <div class="win-title">
+            <span>Terminal</span>
+            <button class="close-btn" onclick="closeWindow('terminal-win')">X</button>
+        </div>
         <div class="win-body" style="background: #000; padding: 8px;">
             <div id="term-output" style="color: #0f0; font-family: monospace; font-size: 12px; height: 160px; overflow-y: auto; white-space: pre-wrap;">Welcome to LegendOS Terminal. Type "help" for commands.</div>
             <div style="display: flex; margin-top: 4px;">
-            <span style="color: #0f0; font-family: monospace; font-size: 12px; margin-right: 4px;">&gt;</span>
-            <input type="text" id="term-input" style="background: transparent; border: none; outline: none; color: #0f0; font-family: monospace; font-size: 12px; flex: 1; margin: 0; padding: 0;" onkeydown="handleTerminal(event)">
+                <span style="color: #0f0; font-family: monospace; font-size: 12px; margin-right: 4px;">&gt;</span>
+                <input type="text" id="term-input" style="background: transparent; border: none; outline: none; color: #0f0; font-family: monospace; font-size: 12px; flex: 1; margin: 0; padding: 0;" onkeydown="handleTerminal(event)">
             </div>
         </div>
     </div>
@@ -274,6 +293,28 @@
                 <button class="action-btn" onclick="calcEqual()">=</button>
                 <button class="action-btn" style="grid-column: span 4; background: red;" onclick="calcClear()">Clear</button>
             </div>
+        </div>
+    </div>
+
+    <div id="ttt-win" class="win" style="top: 130px; left: 310px; width: 220px;">
+        <div class="win-title">
+            <span>Tic-Tac-Toe</span>
+            <button class="close-btn" onclick="closeWindow('ttt-win')">X</button>
+        </div>
+        <div class="win-body">
+            <div id="ttt-status" style="font-size: 12px; font-weight: bold; margin-bottom: 6px; text-align: center;">Turn: X</div>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px;">
+                <button class="ttt-cell" onclick="makeMove(0)"></button>
+                <button class="ttt-cell" onclick="makeMove(1)"></button>
+                <button class="ttt-cell" onclick="makeMove(2)"></button>
+                <button class="ttt-cell" onclick="makeMove(3)"></button>
+                <button class="ttt-cell" onclick="makeMove(4)"></button>
+                <button class="ttt-cell" onclick="makeMove(5)"></button>
+                <button class="ttt-cell" onclick="makeMove(6)"></button>
+                <button class="ttt-cell" onclick="makeMove(7)"></button>
+                <button class="ttt-cell" onclick="makeMove(8)"></button>
+            </div>
+            <button class="action-btn" style="width: 100%; margin-top: 8px;" onclick="resetTTT()">Restart</button>
         </div>
     </div>
 
@@ -428,10 +469,56 @@
             output.scrollTop = output.scrollHeight;
         }
 
+        // Tic-Tac-Toe Logic
+        let tttBoard = ["", "", "", "", "", "", "", "", ""];
+        let tttTurn = "X";
+        let tttActive = true;
+
+        function makeMove(i) {
+            if (tttBoard[i] !== "" || !tttActive) return;
+            tttBoard[i] = tttTurn;
+            let cells = document.querySelectorAll('.ttt-cell');
+            cells[i].textContent = tttTurn;
+
+            const wins = [
+                [0,1,2], [3,4,5], [6,7,8],
+                [0,3,6], [1,4,7], [2,5,8],
+                [0,4,8], [2,4,6]
+            ];
+
+            let won = false;
+            for (let combo of wins) {
+                if (tttBoard[combo[0]] && tttBoard[combo[0]] === tttBoard[combo[1]] && tttBoard[combo[0]] === tttBoard[combo[2]]) {
+                    won = true;
+                    break;
+                }
+            }
+
+            if (won) {
+                document.getElementById('ttt-status').textContent = `Winner: ${tttTurn}!`;
+                tttActive = false;
+            } else if (!tttBoard.includes("")) {
+                document.getElementById('ttt-status').textContent = "It's a Draw!";
+                tttActive = false;
+            } else {
+                tttTurn = tttTurn === "X" ? "O" : "X";
+                document.getElementById('ttt-status').textContent = `Turn: ${tttTurn}`;
+            }
+        }
+
+        function resetTTT() {
+            tttBoard = ["", "", "", "", "", "", "", "", ""];
+            tttTurn = "X";
+            tttActive = true;
+            document.getElementById('ttt-status').textContent = "Turn: X";
+            let cells = document.querySelectorAll('.ttt-cell');
+            cells.forEach(c => c.textContent = "");
+        }
+
         setInterval(updateClock, 1000);
         updateClock();
 
         openWindow('notes-win');
     </script>
 </body> 
-</html>  
+</html>
